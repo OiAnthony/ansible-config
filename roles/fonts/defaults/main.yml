@@ -1,0 +1,9 @@
+---
+# 字体名称
+font_name: "MapleMonoNFCN"
+
+# 字体zip包下载URL（必须由用户提供）
+font_zip_url: ""
+
+# 安装级别：user(用户级)或system(系统级)
+install_level: "user"

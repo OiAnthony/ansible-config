@@ -1,0 +1,52 @@
+---
+# 安装依赖包
+- name: 安装字体依赖
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  loop:
+    - fontconfig
+    - unzip
+  when: ansible_os_family == 'Debian'
+
+# 设置字体安装路径
+- name: 设置字体安装路径
+  set_fact:
+    font_dir: "{% if install_level == 'system' %}/usr/local/share/fonts/{{ font_name }}{% else %}{{ ansible_env.HOME }}/.local/share/fonts/{{ font_name }}{% endif %}"
+
+# 创建字体目录
+- name: 创建字体目录
+  file:
+    path: "{{ font_dir }}"
+    state: directory
+    mode: '0755'
+
+# 下载字体zip包
+- name: 下载字体文件
+  get_url:
+    url: "{{ font_zip_url }}"
+    dest: "/tmp/{{ font_name }}.zip"
+    mode: '0644'
+  when: font_zip_url != ""
+
+# 解压字体文件
+- name: 解压字体文件
+  unarchive:
+    src: "/tmp/{{ font_name }}.zip"
+    dest: "{{ font_dir }}"
+    remote_src: yes
+    creates: "{{ font_dir }}/{{ font_name }}.ttf"
+  when: font_zip_url != ""
+
+# 更新字体缓存
+- name: 更新字体缓存
+  block:
+    - name: 执行系统级字体缓存更新
+      command: fc-cache -f -v
+      become: true
+  when: install_level == 'system'
+
+- name: 更新用户字体缓存
+  command: fc-cache -f -v
+  when: install_level == 'user'
