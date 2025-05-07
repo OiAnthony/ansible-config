@@ -24,6 +24,7 @@ This project automates the setup of a consistent development environment across 
 1. Clone this repository
 2. Run `chmod +x bootstrap.sh`
 3. Execute `./bootstrap.sh`
+4. For verbose debugging, run: `ansible-playbook playbook.yml -vvv`
 
 ## Configuring `inventory.ini`
 
