@@ -33,7 +33,7 @@ The `inventory.ini` file defines the hosts and groups managed by Ansible. Here's
 
    ```ini
    [local]
-   localhost ansible_connection=local ansible_user=root
+   localhost ansible_connection=local
    ```
 
 2. **Development/Production Groups**: Uncomment and modify the `[development]` or `[production]` sections to add your servers:
@@ -49,7 +49,6 @@ The `inventory.ini` file defines the hosts and groups managed by Ansible. Here's
    ```ini
    [all:vars]
    ansible_python_interpreter=/usr/bin/python3
-   ansible_user=root
    ansible_ssh_private_key_file=~/.ssh/id_rsa
    ```
 
