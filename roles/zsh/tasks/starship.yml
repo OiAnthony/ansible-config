@@ -1,0 +1,46 @@
+---
+- name: Check if starship is installed
+  ansible.builtin.stat:
+    path: "{{ '/usr/local/bin/starship' if ansible_os_family == 'Darwin' and ansible_architecture != 'arm64' else '/opt/homebrew/bin/starship' if ansible_os_family == 'Darwin' and ansible_architecture == 'arm64' else '/usr/local/bin/starship' }}"
+  register: starship_check
+  become: false
+
+- name: Install starship (macOS via Homebrew)
+  community.general.homebrew:
+    name: starship
+    state: present
+  when: ansible_os_family == 'Darwin' and not starship_check.stat.exists
+  become: false
+
+- name: Install starship (Linux via curl)
+  ansible.builtin.shell:
+    cmd: sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- --yes
+    creates: /usr/local/bin/starship
+  when: ansible_os_family != 'Darwin' and not starship_check.stat.exists
+  become: true
+
+- name: Ensure starship config directory exists
+  ansible.builtin.file:
+    path: "{{ user_home }}/.config"
+    state: directory
+    mode: '0755'
+  become: false
+
+- name: Configure starship.toml
+  ansible.builtin.copy:
+    dest: "{{ user_home }}/.config/starship.toml"
+    content: |
+      # Minimal starship configuration
+      [character]
+      success_symbol = "[➜](bold green)"
+      error_symbol = "[✗](bold red)"
+      [git_branch]
+      symbol = "🌱 "
+      truncation_length = 8
+      [directory]
+      truncation_length = 3
+      truncate_to_repo = true
+    owner: "{{ target_user }}"
+    group: "{{ target_user }}"
+    mode: '0644'
+  become: false

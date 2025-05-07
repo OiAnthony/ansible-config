@@ -1,0 +1,12 @@
+---
+- name: Include OS-specific tasks for common setup
+  ansible.builtin.include_tasks: "{{ ansible_os_family | lower }}.yml"
+
+- name: Ensure .config directory exists
+  ansible.builtin.file:
+    path: "{{ user_home }}/.config"
+    state: directory
+    mode: '0755'
+  become: false # Usually user's home directory operations don't need sudo
+
+# Add any other truly common tasks here

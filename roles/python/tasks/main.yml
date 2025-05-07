@@ -1,0 +1,22 @@
+---
+- name: Install Python and pip (Debian)
+  ansible.builtin.apt:
+    name:
+      - python3
+      - python3-pip
+      - python3-venv
+    state: present
+  become: true
+  when: ansible_os_family == "Debian"
+
+- name: Install Python and pip (macOS)
+  community.general.homebrew:
+    name:
+      - python
+    state: present
+  become: false
+  when: ansible_os_family == "Darwin"
+
+- name: Include Miniforge installation tasks
+  ansible.builtin.include_tasks: miniforge.yml
+  when: install_miniforge | default(false)

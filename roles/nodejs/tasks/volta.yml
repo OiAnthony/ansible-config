@@ -1,0 +1,32 @@
+---
+- name: Check if Volta is already installed
+  ansible.builtin.stat:
+    path: "{{ '/usr/local/bin/volta' if ansible_os_family == 'Darwin' and ansible_architecture != 'arm64' else '/opt/homebrew/bin/volta' if ansible_os_family == 'Darwin' and ansible_architecture == 'arm64' else '~/.volta/bin/volta' }}"
+  register: volta_check
+  become: false
+
+- name: Install Volta (macOS)
+  ansible.builtin.shell:
+    cmd: curl https://get.volta.sh | bash
+    creates: "{{ '/usr/local/bin/volta' if ansible_os_family == 'Darwin' and ansible_architecture != 'arm64' else '/opt/homebrew/bin/volta' if ansible_os_family == 'Darwin' and ansible_architecture == 'arm64' else '~/.volta/bin/volta' }}"
+  become: false
+  when: ansible_os_family == "Darwin" and not volta_check.stat.exists
+
+- name: Install Volta (Linux)
+  ansible.builtin.shell:
+    cmd: curl https://get.volta.sh | bash
+    creates: "~/.volta/bin/volta"
+  become: false
+  when: ansible_os_family == "Debian" and not volta_check.stat.exists
+
+- name: Install Node.js via Volta
+  ansible.builtin.shell:
+    cmd: volta install node
+    creates: "{{ '/usr/local/bin/node' if ansible_os_family == 'Darwin' and ansible_architecture != 'arm64' else '/opt/homebrew/bin/node' if ansible_os_family == 'Darwin' and ansible_architecture == 'arm64' else '~/.volta/bin/node' }}"
+  become: false
+
+- name: Install npm via Volta
+  ansible.builtin.shell:
+    cmd: volta install npm
+    creates: "{{ '/usr/local/bin/npm' if ansible_os_family == 'Darwin' and ansible_architecture != 'arm64' else '/opt/homebrew/bin/npm' if ansible_os_family == 'Darwin' and ansible_architecture == 'arm64' else '~/.volta/bin/npm' }}"
+  become: false

@@ -1,0 +1,28 @@
+---
+# This is a placeholder for tools installation tasks
+# Specific tools should be installed in their own task files
+# and included here as needed
+
+- name: Install common CLI tools (Debian)
+  ansible.builtin.apt:
+    name:
+      - jq
+      - fzf
+      - ripgrep
+      - fd-find
+      - bat
+    state: present
+  become: true
+  when: ansible_os_family == "Debian"
+
+- name: Install common CLI tools (macOS)
+  community.general.homebrew:
+    name:
+      - jq
+      - fzf
+      - ripgrep
+      - fd
+      - bat
+    state: present
+  become: false
+  when: ansible_os_family == "Darwin"

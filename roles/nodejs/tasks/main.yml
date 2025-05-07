@@ -1,0 +1,27 @@
+---
+- name: Install Node.js (Debian)
+  ansible.builtin.apt:
+    name:
+      - nodejs
+      - npm
+    state: present
+  become: true
+  when: ansible_os_family == "Debian"
+
+- name: Install Node.js (macOS)
+  community.general.homebrew:
+    name:
+      - node
+    state: present
+  become: false
+  when: ansible_os_family == "Darwin"
+
+- name: Update npm to latest version
+  ansible.builtin.shell:
+    cmd: npm install -g npm@latest
+  become: "{{ 'true' if ansible_os_family == 'Debian' else 'false' }}"
+  when: not use_volta | default(false)
+
+- name: Include Volta installation tasks
+  ansible.builtin.include_tasks: volta.yml
+  when: use_volta | default(false)

@@ -1,0 +1,25 @@
+---
+- name: Configure development environment
+  hosts: all
+  gather_facts: true
+  become: true
+  vars:
+    target_user: "{{ ansible_user | default('deploy') }}"
+    user_home: "/home/{{ target_user }}"
+    oh_my_zsh_path: "{{ user_home }}/.oh-my-zsh"
+    oh_my_zsh_custom_plugins_path: "{{ oh_my_zsh_path }}/custom/plugins"
+    zsh_autosuggestions_repo: https://github.com/zsh-users/zsh-autosuggestions
+    zsh_syntax_highlighting_repo: https://github.com/zsh-users/zsh-syntax-highlighting
+    zsh_plugins_list:
+      - git
+      - zsh-autosuggestions
+      - zsh-syntax-highlighting
+    miniforge_install_path: "{{ user_home }}/miniforge3"
+    use_volta: true
+
+  roles:
+    - common
+    - zsh
+    - python
+    - nodejs
+    - tools

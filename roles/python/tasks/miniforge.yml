@@ -1,0 +1,28 @@
+---
+- name: Set Miniforge installer URL based on architecture
+  ansible.builtin.set_fact:
+    miniforge_installer_url: "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-{{ 'Linux-x86_64.sh' if ansible_architecture == 'x86_64' and ansible_os_family == 'Debian' else 'Linux-aarch64.sh' if ansible_architecture == 'aarch64' and ansible_os_family == 'Debian' else 'MacOSX-x86_64.sh' if ansible_architecture == 'x86_64' and ansible_os_family == 'Darwin' else 'MacOSX-arm64.sh' if ansible_architecture == 'arm64' and ansible_os_family == 'Darwin' else 'Linux-x86_64.sh' }}"
+
+- name: Download Miniforge installer
+  ansible.builtin.get_url:
+    url: "{{ miniforge_installer_url }}"
+    dest: "/tmp/Miniforge3.sh"
+    mode: '0755'
+  become: false
+
+- name: Install Miniforge
+  ansible.builtin.shell:
+    cmd: bash /tmp/Miniforge3.sh -b -p "{{ miniforge_install_path }}"
+    creates: "{{ miniforge_install_path }}/bin/conda"
+  become: false
+
+- name: Update conda
+  ansible.builtin.shell:
+    cmd: "{{ miniforge_install_path }}/bin/conda update -n base -c defaults conda --yes"
+  become: false
+
+- name: Initialize conda for shell
+  ansible.builtin.shell:
+    cmd: "{{ miniforge_install_path }}/bin/conda init zsh"
+  become: false
+  when: ansible_os_family == "Darwin" or ansible_os_family == "Debian"

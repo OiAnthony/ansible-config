@@ -1,0 +1,31 @@
+---
+- name: Ensure Homebrew is installed (macOS)
+  ansible.builtin.stat:
+    path: "{{ '/opt/homebrew/bin/brew' if ansible_architecture == 'arm64' else '/usr/local/bin/brew' }}"
+  register: brew_check
+
+- name: Install Homebrew (macOS)
+  ansible.builtin.shell:
+    cmd: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    creates: "{{ '/opt/homebrew/bin/brew' if ansible_architecture == 'arm64' else '/usr/local/bin/brew' }}"
+  when: not brew_check.stat.exists
+  become: false # Homebrew installation script handles sudo if needed, or installs to user dir
+
+- name: Update Homebrew (macOS)
+  community.general.homebrew:
+    update_homebrew: true
+  when: ansible_os_family == "Darwin"
+  become: false
+
+- name: Install common packages (macOS)
+  community.general.homebrew:
+    name:
+      - git
+      - curl
+      - wget
+      - htop
+      - tree
+      - fzf # Needed for zsh plugin
+    state: present
+  when: ansible_os_family == "Darwin"
+  become: false # Homebrew installs packages for the user

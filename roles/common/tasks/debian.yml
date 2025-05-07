@@ -1,0 +1,27 @@
+---
+- name: Update apt cache (Ubuntu)
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600 # Cache for 1 hour
+  become: true
+  when: ansible_os_family == "Debian"
+
+- name: Install common packages (Ubuntu)
+  ansible.builtin.apt:
+    name:
+      - git
+      - curl
+      - wget
+      - build-essential # For compiling software
+      - apt-transport-https
+      - ca-certificates
+      - gnupg
+      - lsb-release
+      - software-properties-common
+      - htop
+      - tree
+      - unzip
+      - fzf # Needed for zsh plugin
+    state: present
+  become: true
+  when: ansible_os_family == "Debian"
