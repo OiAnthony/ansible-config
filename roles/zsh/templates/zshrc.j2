@@ -1,3 +1,10 @@
+if [ -z "$ZSH_VERSION" ]; then
+  # Using printf for better portability and to avoid issues with echo's behavior across shells/systems.
+  # Outputting to stderr (>&2) as it's an error/warning message.
+  printf "%s\\n" "This configuration is for Zsh. Please switch to Zsh to source this file." >&2
+  return 1 # 'return' is appropriate for sourced scripts to stop execution in the current shell.
+fi
+
 # Path to your oh-my-zsh installation.
 export ZSH="{{ oh_my_zsh_path }}"
 
