@@ -3,11 +3,11 @@
 
 set -euo pipefail
 
-# Check if running as root
-if [[ $EUID -eq 0 ]]; then
-   echo "This script should not be run as root" 
-   exit 1
-fi
+# # Check if running as root
+# if [[ $EUID -eq 0 ]]; then
+#    echo "This script should not be run as root" 
+#    exit 1
+# fi
 
 # Install Ansible if not present
 if ! command -v ansible &> /dev/null; then
