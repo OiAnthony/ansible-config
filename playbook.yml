@@ -19,7 +19,6 @@
       - fzf
       - tmux
       - uv
-      - pdm
       - bun
       - volta
       - docker
