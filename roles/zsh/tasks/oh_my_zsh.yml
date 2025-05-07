@@ -5,17 +5,23 @@
   register: oh_my_zsh_script_file_check # Updated register name
   become: false # Check runs as user
 
+- name: Check if Oh My Zsh directory exists
+  ansible.builtin.stat:
+    path: "{{ oh_my_zsh_path }}"
+  register: oh_my_zsh_dir_check
+  become: false
+
 - name: Install Oh My Zsh
   ansible.builtin.shell:
     cmd: >
       sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-    creates: "{{ oh_my_zsh_path }}/oh-my-zsh.sh" # Idempotency check for the shell command
-  environment: # Pass environment variables to the script
+    creates: "{{ oh_my_zsh_path }}/oh-my-zsh.sh"
+  environment:
     ZSH: "{{ oh_my_zsh_path }}"
-    RUNZSH: "no" # Don't start zsh after install
-    CHSH: "no"   # Don't change shell automatically, Ansible will do it
-  become: false # Run as target_user
-  when: not oh_my_zsh_script_file_check.stat.exists # Updated when condition
+    RUNZSH: "no"
+    CHSH: "no"
+  become: false
+  when: not oh_my_zsh_script_file_check.stat.exists and not oh_my_zsh_dir_check.stat.exists
 
 - name: Clone zsh-autosuggestions plugin
   ansible.builtin.git:
