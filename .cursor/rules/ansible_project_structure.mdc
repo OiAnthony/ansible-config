@@ -1,0 +1,16 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Ansible Project Structure
+
+This project follows a standard Ansible project layout.
+
+- **Main Playbook**: The primary execution flow is defined in [playbook.yml](mdc:playbook.yml).
+- **Inventory**: Hosts and groups managed by Ansible are listed in [inventory.ini](mdc:inventory.ini).
+- **Roles**: Reusable automation units are organized into roles within the `roles/` directory. You can find them in [roles](mdc:roles).
+- **Dependencies**: External Ansible Galaxy collections or roles required by the project are specified in [requirements.yml](mdc:requirements.yml).
+- **Configuration**: Ansible behavior is configured through [ansible.cfg](mdc:ansible.cfg).
+- **Bootstrap Script**: The [bootstrap.sh](mdc:bootstrap.sh) script helps in setting up the initial environment or dependencies.
+- **README**: Project overview, prerequisites, and usage instructions are available in [README.md](mdc:README.md).
