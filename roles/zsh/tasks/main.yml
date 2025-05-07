@@ -11,10 +11,16 @@
 - name: Include Starship installation tasks
   ansible.builtin.include_tasks: starship.yml
 
+- name: Get zsh path dynamically
+  ansible.builtin.command: which zsh
+  register: zsh_path
+  changed_when: false
+  become: false
+
 - name: Change user's default shell to Zsh
   ansible.builtin.user:
     name: "{{ target_user }}"
-    shell: "{{ '/bin/zsh' if ansible_os_family == 'Debian' else '/usr/local/bin/zsh' if ansible_os_family == 'Darwin' and ansible_architecture != 'arm64' else '/opt/homebrew/bin/zsh' if ansible_os_family == 'Darwin' and ansible_architecture == 'arm64' else '/bin/zsh' }}" # Adjust path as needed
+    shell: "{{ zsh_path.stdout }}"
   become: true
   # Note: Changing shell might require logout/login to take effect.
   # For local execution, this might not immediately reflect in the current terminal.
