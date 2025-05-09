@@ -1,0 +1,149 @@
+---
+- name: Ensure curl is installed (Debian)
+  ansible.builtin.apt:
+    name: curl
+    state: present
+  become: true
+  when: ansible_os_family == "Debian"
+  tags: pdm
+
+- name: Set PyPI mirror configuration for PDM installation
+  ansible.builtin.file:
+    path: "{{ user_home }}/.pip"
+    state: directory
+    mode: '0755'
+    owner: "{{ target_user }}"
+    group: "{{ target_user if ansible_os_family == 'Darwin' else target_user }}"
+  become: "{{ 'true' if ansible_os_family == 'Debian' else 'false' }}"
+  tags: pdm
+
+- name: Configure PyPI mirror to use Tsinghua TUNA mirror
+  ansible.builtin.copy:
+    dest: "{{ user_home }}/.pip/pip.conf"
+    content: |
+      [global]
+      index-url = https://pypi.tuna.tsinghua.edu.cn/simple
+      trusted-host = pypi.tuna.tsinghua.edu.cn
+    owner: "{{ target_user }}"
+    group: "{{ target_user if ansible_os_family == 'Darwin' else target_user }}"
+    mode: '0644'
+  become: "{{ 'true' if ansible_os_family == 'Debian' else 'false' }}"
+  tags: pdm
+
+- name: Download PDM install script with curl
+  ansible.builtin.get_url:
+    url: https://pdm-project.org/install-pdm.py
+    dest: /tmp/install-pdm.py
+    mode: '0755'
+  become: "{{ 'true' if ansible_os_family == 'Debian' else 'false' }}"
+  tags: pdm
+
+- name: Install PDM using downloaded script (Linux)
+  ansible.builtin.shell:
+    cmd: >
+      python3 /tmp/install-pdm.py
+    creates: "{{ user_home }}/.local/bin/pdm" # Linux 路径
+  environment:
+    PDM_DEPS: "--index-url=https://pypi.tuna.tsinghua.edu.cn/simple --trusted-host=pypi.tuna.tsinghua.edu.cn"
+  become: false
+  when: ansible_os_family == "Debian"
+  tags: pdm
+
+- name: Install PDM using downloaded script (macOS)
+  ansible.builtin.shell:
+    cmd: >
+      python3 /tmp/install-pdm.py
+    creates: "{{ user_home }}/Library/Python/{{ ansible_python.version.major }}.{{ ansible_python.version.minor }}/bin/pdm" # macOS 路径
+  environment:
+    PDM_DEPS: "--index-url=https://pypi.tuna.tsinghua.edu.cn/simple --trusted-host=pypi.tuna.tsinghua.edu.cn"
+  become: false
+  when: ansible_os_family == "Darwin"
+  tags: pdm
+
+- name: Remove PDM install script
+  ansible.builtin.file:
+    path: /tmp/install-pdm.py
+    state: absent
+  become: true
+  tags: pdm
+
+- name: Ensure PDM config directory exists
+  ansible.builtin.file:
+    path: "{{ user_home }}/.pdm"
+    state: directory
+    mode: '0755'
+    owner: "{{ target_user }}"
+    group: "{{ target_user if ansible_os_family == 'Darwin' else target_user }}"
+  become: "{{ 'true' if ansible_os_family == 'Debian' else 'false' }}"
+  tags: pdm
+
+- name: Configure PDM to use TUNA mirror
+  ansible.builtin.copy:
+    dest: "{{ user_home }}/.pdm/config.toml"
+    content: |
+      [python]
+      
+      [pypi]
+      url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+      verify_ssl = true
+      
+      [repository]
+    owner: "{{ target_user }}"
+    group: "{{ target_user if ansible_os_family == 'Darwin' else target_user }}"
+    mode: '0644'
+  become: "{{ 'true' if ansible_os_family == 'Debian' else 'false' }}"
+  tags: pdm
+
+- name: Create symbolic link for PDM to make it available system-wide (Linux)
+  ansible.builtin.file:
+    src: "{{ user_home }}/.local/bin/pdm"
+    dest: /usr/local/bin/pdm
+    state: link
+  become: true
+  when: ansible_os_family == "Debian"
+  tags: pdm
+
+- name: Create symbolic link for PDM to make it available system-wide (macOS)
+  ansible.builtin.file:
+    src: "{{ user_home }}/Library/Python/{{ ansible_python.version.major }}.{{ ansible_python.version.minor }}/bin/pdm"
+    dest: /usr/local/bin/pdm
+    state: link
+  become: true
+  when: ansible_os_family == "Darwin"
+  tags: pdm
+
+- name: Add PDM binary directory to PATH (Linux)
+  ansible.builtin.lineinfile:
+    path: "{{ user_home }}/.bashrc"
+    line: 'export PATH="$HOME/.local/bin:$PATH" # PDM path'
+    state: present
+  become: false
+  when: ansible_os_family == "Debian"
+  tags: pdm
+
+- name: Add PDM binary directory to zshrc (Linux)
+  ansible.builtin.lineinfile:
+    path: "{{ user_home }}/.zshrc"
+    line: 'export PATH="$HOME/.local/bin:$PATH" # PDM path'
+    state: present
+  become: false
+  when: ansible_os_family == "Debian"
+  tags: pdm
+
+- name: Add PDM binary directory to PATH (macOS)
+  ansible.builtin.lineinfile:
+    path: "{{ user_home }}/.bashrc"
+    line: 'export PATH="$HOME/Library/Python/{{ ansible_python.version.major }}.{{ ansible_python.version.minor }}/bin:$PATH" # PDM path'
+    state: present
+  become: false
+  when: ansible_os_family == "Darwin"
+  tags: pdm
+
+- name: Add PDM binary directory to zshrc (macOS)
+  ansible.builtin.lineinfile:
+    path: "{{ user_home }}/.zshrc"
+    line: 'export PATH="$HOME/Library/Python/{{ ansible_python.version.major }}.{{ ansible_python.version.minor }}/bin:$PATH" # PDM path'
+    state: present
+  become: false
+  when: ansible_os_family == "Darwin"
+  tags: pdm 

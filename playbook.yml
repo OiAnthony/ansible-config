@@ -33,4 +33,5 @@
     - zsh
     - python
     - nodejs
+    - docker
     - tools

@@ -8,6 +8,7 @@
     state: present
   become: true
   when: ansible_os_family == "Debian"
+  tags: python
 
 - name: Install Python and pip (macOS)
   community.general.homebrew:
@@ -16,7 +17,13 @@
     state: present
   become: false
   when: ansible_os_family == "Darwin"
+  tags: python
 
 - name: Include Miniforge installation tasks
   ansible.builtin.include_tasks: miniforge.yml
   when: install_miniforge | default(false)
+  tags: python
+
+- name: Include PDM installation tasks
+  ansible.builtin.include_tasks: pdm.yml
+  tags: [python, pdm]

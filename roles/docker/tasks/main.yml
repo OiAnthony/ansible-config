@@ -1,0 +1,8 @@
+---
+- name: Include Docker installation for Debian
+  ansible.builtin.include_tasks: debian.yml
+  when: ansible_os_family == "Debian"
+
+- name: Include Docker installation for macOS
+  ansible.builtin.include_tasks: darwin.yml
+  when: ansible_os_family == "Darwin" 

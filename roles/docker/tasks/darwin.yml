@@ -1,0 +1,25 @@
+---
+- name: Install Docker Desktop with Homebrew cask
+  community.general.homebrew_cask:
+    name: docker
+    state: present
+  become: false
+
+- name: Create Docker directory if it doesn't exist
+  ansible.builtin.file:
+    path: "{{ user_home }}/.docker"
+    state: directory
+    mode: '0755'
+  become: false
+
+- name: Check if Docker is running
+  ansible.builtin.command: "pgrep -f Docker"
+  register: docker_status
+  changed_when: false
+  failed_when: false
+  become: false
+
+- name: Inform user about Docker Desktop (if not running)
+  ansible.builtin.debug:
+    msg: 'Please start Docker Desktop manually or launch it from your Applications folder after playbook completes'
+  when: docker_status.rc != 0 

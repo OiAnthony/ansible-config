@@ -18,6 +18,15 @@ This project automates the setup of a consistent development environment across 
 - Standardized development environment configuration
 - Cross-platform support (Linux/macOS)
 - Modular role-based organization
+- Development tools include:
+  - Python environment with PDM package manager (installed via official script)
+  - Docker Engine and Docker Compose (using Aliyun mirror source)
+  - Node.js with Volta version manager
+  - zsh with Oh My Zsh
+- China mainland optimized with domestic mirrors:
+  - Aliyun mirror for Docker APT repository and installation
+  - Multiple Docker registry mirrors configured (163, USTC, Baidu, Docker-CN)
+  - TUNA mirror for Python packages
 
 ## Usage
 
